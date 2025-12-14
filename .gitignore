@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.egg-info/
+*.egg
+
+# Virtual environments
+venv/
+*.venv/
+ENV/
+env/
+*.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit temp files
+.temp/
