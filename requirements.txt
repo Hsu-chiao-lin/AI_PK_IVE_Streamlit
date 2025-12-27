@@ -10,6 +10,6 @@ scipy>=1.11.0
 # DeepFace 臉部辨識
 deepface>=0.0.88
 
-# TensorFlow 與 Keras（DeepFace 依賴）
+# TensorFlow 與 tf-keras（DeepFace 依賴，避免 2.20 問題）
 tensorflow==2.15.0
 tf-keras>=2.15.0
