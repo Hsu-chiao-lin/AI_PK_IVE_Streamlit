@@ -1,69 +1,48 @@
 import streamlit as st
-from deepface import DeepFace
-from pathlib import Path
-import pandas as pd
+import os
+from PIL import Image
+import random
 
-st.title("AI PK - 認識 IVE 成員")
+# -------------------------
+# 基本設定
+# -------------------------
+st.set_page_config(
+    page_title="AI PK IVE",
+    layout="centered"
+)
 
-# 上傳圖片
-uploaded_file = st.file_uploader("上傳你的照片", type=["jpg", "jpeg", "png"])
+st.title("AI PK IVE")
+st.write("隨機顯示 IVE 成員圖片，作為 AI 圖像展示示範 App")
 
-# 資料夾路徑
-IVE_DIR = Path("photos")  # 請放所有 IVE 成員照片的資料夾
-IVE_DIR.mkdir(exist_ok=True)
+# -------------------------
+# 讀取圖片資料
+# -------------------------
+IMAGE_DIR = "photos"
 
-# 模型選擇
-model_name = st.selectbox("選擇模型", ["VGG-Face", "Facenet", "ArcFace", "DeepFace"])
+def load_images(image_dir):
+    if not os.path.exists(image_dir):
+        return []
 
-if uploaded_file:
-    # 儲存上傳的臨時檔
-    input_path = Path("temp_input.jpg")
-    with open(input_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    images = []
+    for file in os.listdir(image_dir):
+        if file.lower().endswith((".jpg", ".png", ".jpeg")):
+            images.append(os.path.join(image_dir, file))
+    return images
 
-    st.image(input_path, caption="上傳的照片", use_column_width=True)
+images = load_images(IMAGE_DIR)
 
-    if not any(IVE_DIR.iterdir()):
-        st.warning("IVE 成員資料夾內沒有照片，請放入照片")
-    else:
-        try:
-            # 使用 DeepFace 找相似
-            results = DeepFace.find(
-                img_path=str(input_path), 
-                db_path=str(IVE_DIR), 
-                model_name=model_name, 
-                enforce_detection=False
-            )
+# -------------------------
+# UI 顯示邏輯
+# -------------------------
+if not images:
+    st.error("找不到任何圖片，請確認 photos 資料夾內有圖片檔案。")
+else:
+    if "current_image" not in st.session_state:
+        st.session_state.current_image = random.choice(images)
 
-            # 判斷回傳型態
-            if isinstance(results, list):
-                if len(results) == 0:
-                    st.warning("找不到相似成員，請確認照片清晰度。")
-                    results_df = pd.DataFrame()
-                else:
-                    # DeepFace 新版回傳 list 可能只有一個 DataFrame
-                    results_df = results[0]
-            else:
-                results_df = results
+    img = Image.open(st.session_state.current_image)
+    st.image(img, caption=os.path.basename(st.session_state.current_image), use_container_width=True)
 
-            if results_df.empty:
-                st.warning("找不到相似成員，請確認照片清晰度。")
-            else:
-                # 找到數值型欄位 (相似度距離)
-                distance_cols = [col for col in results_df.columns if results_df[col].dtype in ['float64','float32','int64','int32']]
-                if not distance_cols:
-                    st.error("找不到相似度欄位，請確認 DeepFace 模型與版本")
-                else:
-                    distance_col = distance_cols[0]
-
-                    # 顯示前 3 名最相似成員
-                    df_sorted = results_df.sort_values(by=distance_col, ascending=True).head(3)
-                    st.subheader("最相似的成員")
-                    for i, row in df_sorted.iterrows():
-                        identity = Path(row["identity"]).name
-                        distance = float(row[distance_col])
-                        st.write(f"{i+1}. {identity} - 相似度: {distance:.4f}")
-                        st.image(row["identity"], width=200)
-
-        except Exception as e:
-            st.error(f"辨識發生錯誤: {e}")
+    if st.button("下一張"):
+        st.session_state.current_image = random.choice(images)
+        st.rerun()
