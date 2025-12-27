@@ -1,2 +1,5 @@
-streamlit==1.39.0
-Pillow
+streamlit
+pillow
+deepface
+numpy
+opencv-python
