@@ -10,7 +10,6 @@ st.set_page_config(page_title="AI PK IVE Fun", layout="centered")
 st.title("AI PK IVE Fun")
 st.write("""
 上傳你的照片，看看今天你最像哪位 IVE 成員！  
-隨機趣味互動，完全不使用 AI 或 DeepFace。
 """)
 
 # -------------------------
