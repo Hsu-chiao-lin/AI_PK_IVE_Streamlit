@@ -5,17 +5,17 @@ import random
 from deepface import DeepFace
 
 # -------------------------
-# 基本設定
+# Streamlit 基本設定
 # -------------------------
 st.set_page_config(page_title="AI PK IVE", layout="centered")
 st.title("AI PK IVE Member Recognition")
 st.write("""
 上傳你的照片，系統會比對 IVE 成員照片，顯示最相似的成員及相似度。
-操作簡單直覺，支援快速切換展示照片。
+隨機瀏覽 IVE 成員照片，操作簡單直覺。
 """)
 
 # -------------------------
-# 讀取 IVE 成員照片
+# IVE 成員照片資料夾
 # -------------------------
 IMAGE_DIR = "photos"
 
@@ -34,7 +34,7 @@ if not images:
     st.error("找不到任何 IVE 成員照片，請確認 photos 資料夾內有圖片檔案。")
 
 # -------------------------
-# 顯示隨機 IVE 成員照片
+# 隨機瀏覽 IVE 成員照片
 # -------------------------
 if images:
     if "current_image" not in st.session_state:
@@ -52,7 +52,7 @@ if images:
     st.button("下一張", on_click=next_image)
 
 # -------------------------
-# 使用者上傳照片與比對
+# 使用者上傳照片比對
 # -------------------------
 uploaded_file = st.file_uploader("上傳你的照片以比對 IVE 成員", type=["jpg", "jpeg", "png"])
 
@@ -61,7 +61,7 @@ if uploaded_file:
         user_img = Image.open(uploaded_file)
         st.image(user_img, caption="你的上傳照片", use_column_width=True)
 
-        # 進行 DeepFace 比對
+        # DeepFace 比對
         results = []
         for member_img_path in images:
             try:
@@ -72,11 +72,11 @@ if uploaded_file:
                 )
                 similarity = 1 - result["distance"]  # 相似度 0~1
                 results.append((member_img_path, similarity))
-            except Exception as e:
+            except Exception:
                 continue  # 跳過比對失敗的圖片
 
         if results:
-            # 依相似度排序，找最相似成員
+            # 依相似度排序
             best_match = max(results, key=lambda x: x[1])
             st.success(f"最相似的 IVE 成員：{os.path.basename(best_match[0])}")
             st.info(f"相似度：{best_match[1]*100:.2f}%")
