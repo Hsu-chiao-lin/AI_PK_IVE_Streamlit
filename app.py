@@ -2,16 +2,15 @@ import streamlit as st
 import os
 from PIL import Image
 import random
-from deepface import DeepFace
 
 # -------------------------
 # Streamlit 基本設定
 # -------------------------
-st.set_page_config(page_title="AI PK IVE", layout="centered")
-st.title("AI PK IVE Member Recognition")
+st.set_page_config(page_title="AI PK IVE Fun", layout="centered")
+st.title("AI PK IVE Fun")
 st.write("""
-上傳你的照片，系統會比對 IVE 成員照片，顯示最相似的成員及相似度。
-隨機瀏覽 IVE 成員照片，操作簡單直覺。
+上傳你的照片，看看今天你最像哪位 IVE 成員！  
+隨機趣味互動，完全不使用 AI 或 DeepFace。
 """)
 
 # -------------------------
@@ -49,43 +48,32 @@ if images:
     except Exception as e:
         st.error(f"無法載入圖片: {st.session_state.current_image}\n錯誤訊息: {e}")
 
-    st.button("下一張", on_click=next_image)
+    st.button("下一張成員", on_click=next_image)
 
 # -------------------------
-# 使用者上傳照片比對
+# 上傳照片 + 趣味隨機比對
 # -------------------------
-uploaded_file = st.file_uploader("上傳你的照片以比對 IVE 成員", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("上傳你的照片，看看今天你最像哪位 IVE 成員", type=["jpg", "jpeg", "png"])
 
-if uploaded_file:
+if uploaded_file and images:
     try:
         user_img = Image.open(uploaded_file)
         st.image(user_img, caption="你的上傳照片", use_column_width=True)
 
-        # DeepFace 比對
-        results = []
-        for member_img_path in images:
-            try:
-                result = DeepFace.verify(
-                    img1_path=uploaded_file,
-                    img2_path=member_img_path,
-                    enforce_detection=False
-                )
-                similarity = 1 - result["distance"]  # 相似度 0~1
-                results.append((member_img_path, similarity))
-            except Exception:
-                continue  # 跳過比對失敗的圖片
+        # 隨機挑選一位成員
+        matched_member = random.choice(images)
+        matched_img = Image.open(matched_member)
+        st.image(matched_img, caption=f"今天你最像：{os.path.basename(matched_member)} 🎉", use_column_width=True)
 
-        if results:
-            # 依相似度排序
-            best_match = max(results, key=lambda x: x[1])
-            st.success(f"最相似的 IVE 成員：{os.path.basename(best_match[0])}")
-            st.info(f"相似度：{best_match[1]*100:.2f}%")
-
-            # 顯示最相似成員照片
-            best_img = Image.open(best_match[0])
-            st.image(best_img, caption=f"比對結果：{os.path.basename(best_match[0])}", use_column_width=True)
-        else:
-            st.warning("無法比對，請確認照片清晰度。")
+        # 顯示趣味文字
+        fun_messages = [
+            "完美搭配！",
+            "你們氣質超像！",
+            "眼神都很迷人～",
+            "今天就是這位成員的翻版！",
+            "你的笑容有對應的魅力！"
+        ]
+        st.success(random.choice(fun_messages))
 
     except Exception as e:
         st.error(f"處理上傳照片時發生錯誤：{e}")
