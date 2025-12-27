@@ -27,7 +27,7 @@ else:
 
     try:
         img = Image.open(st.session_state.current_image)
-        st.image(img, caption=os.path.basename(st.session_state.current_image), use_container_width=True)
+        st.image(img, caption=os.path.basename(st.session_state.current_image), use_column_width=True)
     except Exception as e:
         st.error(f"無法載入圖片: {st.session_state.current_image}\n錯誤訊息: {e}")
 
