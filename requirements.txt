@@ -5,13 +5,11 @@ streamlit>=1.20.0
 Pillow>=10.0.0
 numpy>=1.25.0
 opencv-python-headless>=4.8.0
+scipy>=1.11.0
 
 # DeepFace 臉部辨識
 deepface>=0.0.88
 
-# 其他依賴（DeepFace 會用到 TensorFlow 或 PyTorch，可選一）
-tensorflow>=2.15.0
-# torch>=2.1.0  # 如果你想用 PyTorch 後端，可取消註解
-
-# Optional: 支援圖片上傳和進階處理
-scipy>=1.11.0
+# TensorFlow 與 Keras（DeepFace 依賴）
+tensorflow==2.15.0
+tf-keras>=2.15.0
